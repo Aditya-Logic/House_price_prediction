@@ -2,22 +2,31 @@ from flask import Flask, render_template, request
 import joblib
 import pandas as pd
 import os
+import gdown
 
 app = Flask(__name__)
 
 # --- CONFIGURATION ---
 MODEL_FILE = 'model_new.pkl'
 PIPELINE_FILE = 'pipeline_new.pkl'
+FILE_ID = "1Cg7JchDLI1f4OOFZhDAh22FZgm7-Hm-A"
+URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 # --- LOAD MODEL (Run once at startup) ---
 print("Loading model and pipeline...")
-if os.path.exists(MODEL_FILE) and os.path.exists(PIPELINE_FILE):
-    model = joblib.load(MODEL_FILE)
-    pipeline = joblib.load(PIPELINE_FILE)
-    print("Model loaded!")
-else:
-    print("WARNING: Model files not found.")
-    model, pipeline = None, None
+
+if not os.path.exists(MODEL_PATH):
+    def download_model():
+        if not os.path.exists(MODEL_FILE):
+            print("Downloading model...")
+            gdown.download(URL, MODEL_FILE, quiet=False)
+
+
+
+download_model()
+
+model = joblib.load(MODEL_FILE)
+pipeline=joblib.load(PIPELINE_FILE)
 
 @app.route("/", methods=['GET'])
 def home():
