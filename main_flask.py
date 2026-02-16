@@ -17,7 +17,7 @@ print("Loading model and pipeline...")
 def download_model():
     if not os.path.exists(MODEL_FILE):
         print("Downloading model...")
-        gdown.download(URL, MODEL_FILE, quiet=False)
+        gdown.download(URL, MODEL_FILE, quiet=False, fuzzy=True)
 
 download_model()
 
