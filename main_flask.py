@@ -6,40 +6,42 @@ import gdown
 
 app = Flask(__name__)
 
-# --- CONFIGURATION ---
 MODEL_FILE = 'model_new.pkl'
 PIPELINE_FILE = 'pipeline_new.pkl'
+
 FILE_ID = "1Cg7JchDLI1f4OOFZhDAh22FZgm7-Hm-A"
 URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
-# --- LOAD MODEL (Run once at startup) ---
 print("Loading model and pipeline...")
 
 def download_model():
-     if not os.path.exists(MODEL_FILE):
+    if not os.path.exists(MODEL_FILE):
         print("Downloading model...")
         gdown.download(URL, MODEL_FILE, quiet=False)
 
-
-
 download_model()
 
-model = joblib.load(MODEL_FILE)
-pipeline=joblib.load(PIPELINE_FILE)
+try:
+    model = joblib.load(MODEL_FILE)
+    pipeline = joblib.load(PIPELINE_FILE)
+    print("Model and pipeline loaded successfully.")
+except Exception as e:
+    print(f"Error loading files: {e}")
+    model = None
+    pipeline = None
+
 
 @app.route("/", methods=['GET'])
 def home():
-    # Just show the empty form
     return render_template('index.html')
+
 
 @app.route("/predict", methods=['POST'])
 def predict():
-    if not model or not pipeline:
-        return "Model not loaded. Please train it first."
+    if model is None or pipeline is None:
+        return "Model not loaded. Please check deployment."
 
     try:
-        # 1. Grab data from the HTML form
-        # We create a dictionary that matches the structure your pipeline expects
         form_data = {
             'longitude': [float(request.form['longitude'])],
             'latitude': [float(request.form['latitude'])],
@@ -52,19 +54,16 @@ def predict():
             'ocean_proximity': [request.form['ocean_proximity']]
         }
 
-        # 2. Convert to DataFrame
         input_df = pd.DataFrame(form_data)
-
-        # 3. Transform and Predict
         prepared_data = pipeline.transform(input_df)
         prediction = model.predict(prepared_data)[0]
 
-        # 4. Show the result on the page
         result_string = f"Estimated Value: ${prediction:,.2f}"
         return render_template('index.html', prediction_text=result_string)
- 
+
     except Exception as e:
         return f"Error: {str(e)}"
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
