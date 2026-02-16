@@ -15,7 +15,7 @@ URL = f"https://drive.google.com/uc?id={FILE_ID}"
 # --- LOAD MODEL (Run once at startup) ---
 print("Loading model and pipeline...")
 
-if not os.path.exists(MODEL_PATH):
+if not os.path.exists(MODEL_FILE):
     def download_model():
         if not os.path.exists(MODEL_FILE):
             print("Downloading model...")
