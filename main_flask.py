@@ -19,7 +19,7 @@ def download_model():
         print("Downloading model...")
         gdown.download(URL, MODEL_FILE, quiet=False, fuzzy=True)
 
-
+download_model()
 
 try:
     model = joblib.load(MODEL_FILE)
@@ -33,7 +33,6 @@ except Exception as e:
 
 @app.route("/", methods=['GET'])
 def home():
-    download_model()
     return render_template('index.html')
 
 
